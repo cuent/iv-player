@@ -69,9 +69,16 @@ public class Tags {
                     temp = 0l;
                 System.out.println("temp -> " + temp);
                 duracion = (int)(temp / 1000000);
+                
                 titulo = (String) properties.get("title");
-                if(titulo == null) titulo = file.getName();
+                //Mostrar el titulo  de la cancion en caso de que el tag sea null 
+                if(titulo .equals("                              ")){ 
+                	titulo = file.getName();
+                	titulo=titulo.replace(".mp3", "");
+                }
                 autor = (String) properties.get("author");
+                //renicio la variable autor
+                if(autor.equals("                              "))autor="";
                 album = (String) properties.get("album");
                 //year = Integer.parseInt((String) properties.get("date"));
                 
