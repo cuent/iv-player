@@ -599,7 +599,7 @@ public class Interfaz extends javax.swing.JFrame {
     private void cambiarLenguaje(String id){
     	//Esto automaticamente cambia el idioma al elegido por el usuario.
     	Locale.setDefault(new Locale(id));
-    	lenguaje = ResourceBundle.getBundle("org.ivplayer.properties/");
+    	lenguaje = ResourceBundle.getBundle("org.ivplayer.properties.Idioma");
     	
         this.setTitle(lenguaje.getString("titulo"));
         menuReproducir.setText(lenguaje.getString("reproducir"));
