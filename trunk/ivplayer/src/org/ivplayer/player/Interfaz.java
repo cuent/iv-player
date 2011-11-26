@@ -732,11 +732,8 @@ public class Interfaz extends javax.swing.JFrame {
     
     
     private void setEtiquetas(Tags etiquetas){
-        if(etiquetas.getTitulo() != null){
-            titulo = etiquetas.getTitulo();
-        }
-        else
-            titulo = "";
+
+        titulo = etiquetas.getTitulo();
         
         if(etiquetas.getAutor() != null){
             artista = etiquetas.getAutor();
