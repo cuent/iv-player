@@ -10,17 +10,7 @@
  */
 package org.ivplayer.player;
 
-import java.awt.event.WindowEvent;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.ivplayer.util.PanelCoverArt;
-import org.ivplayer.util.ExtensionFileFilter;
-import org.ivplayer.util.Tags;
-import org.ivplayer.util.FileDrop;
 import java.awt.BorderLayout;
-import java.awt.CheckboxGroup;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
@@ -28,22 +18,26 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -57,7 +51,12 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+
 import org.ivplayer.properties.PlayerProperties;
+import org.ivplayer.util.ExtensionFileFilter;
+import org.ivplayer.util.FileDrop;
+import org.ivplayer.util.PanelCoverArt;
+import org.ivplayer.util.Tags;
 import org.jvnet.substance.skin.SubstanceRavenGraphiteGlassLookAndFeel;
 
 /**
@@ -66,7 +65,12 @@ import org.jvnet.substance.skin.SubstanceRavenGraphiteGlassLookAndFeel;
  */
 public class Interfaz extends javax.swing.JFrame {
     
-    private final int PLAY = 0, PAUSE = 1, DETENER = 2;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private final int PLAY = 0, PAUSE = 1, DETENER = 2;
     
     private int estadoIVPlayer = 0;
     
@@ -120,9 +124,7 @@ public class Interfaz extends javax.swing.JFrame {
     
     private ImageIcon imagenLista = new ImageIcon(getClass().getResource("/Imagenes/song.png"));
     
-    private String about = "IVPlayer es un reproductor de música\n"
-                         + "hecho en Java por la comunidad de IV.\n"
-                         + "Versión BETA fecha: 07/11/11.";
+    private String about;
     
     private PanelCoverArt panelCover;
     
@@ -136,9 +138,10 @@ public class Interfaz extends javax.swing.JFrame {
     // si se va a abrir una lista           = 2
     private int abrirTipo = 0;
     
-    private PlayerProperties lenguaje, config;
+    private ResourceBundle lenguaje;
+    private PlayerProperties config;
     private String idioma = "ES";
-
+    
     /** Creates new form Interfaz */
     public Interfaz() {
         initComponents();
@@ -473,7 +476,7 @@ public class Interfaz extends javax.swing.JFrame {
                 if(silencio == false){
                     volumen = 0.0;
                     botonVolume.setIcon(arrayImagen[3]);
-                    botonVolume.setToolTipText(lenguaje.getProperty("botonVolumen"));
+                    botonVolume.setToolTipText(lenguaje.getString("botonVolumen"));
                     silencio = true;
                 }else{
                     // el volumen se establece obteniendo el valor del slider dividido entre
@@ -481,7 +484,7 @@ public class Interfaz extends javax.swing.JFrame {
                     // esto es porque el volumen va desde 0.0 hasta 1.0
                     volumen = (double)(sliderVolume.getValue() / maxSliderVolume);
                     botonVolume.setIcon(arrayImagen[2]);
-                    botonVolume.setToolTipText(lenguaje.getProperty("botonSilencio"));
+                    botonVolume.setToolTipText(lenguaje.getString("botonSilencio"));
                     silencio = false;
                 }
                 volumen();
@@ -594,50 +597,53 @@ public class Interfaz extends javax.swing.JFrame {
     }
     
     private void cambiarLenguaje(String id){
-        lenguaje = new PlayerProperties(id);
+    	//Esto automaticamente cambia el idioma al elegido por el usuario.
+    	Locale.setDefault(new Locale(id));
+    	lenguaje = ResourceBundle.getBundle("org.ivplayer.properties/");
+    	
+        this.setTitle(lenguaje.getString("titulo"));
+        menuReproducir.setText(lenguaje.getString("reproducir"));
+        menuAbrir.setText(lenguaje.getString("abrir"));
+        menuLenguaje.setText(lenguaje.getString("lenguaje"));
+        about = lenguaje.getString("mensajeAcercaDe");
         
-        this.setTitle(lenguaje.getProperty("titulo"));
-        menuReproducir.setText(lenguaje.getProperty("reproducir"));
-        menuAbrir.setText(lenguaje.getProperty("abrir"));
-        menuLenguaje.setText(lenguaje.getProperty("lenguaje"));
+        itemPlay_Pause.setText(lenguaje.getString("reproducir_pausa"));
+        itemStop.setText(lenguaje.getString("detener"));
+        itemBack.setText(lenguaje.getString("anterior"));
+        itemNext.setText(lenguaje.getString("siguiente"));
+        itemAleatorio.setText(lenguaje.getString("aleatorio"));
+        itemRepetir.setText(lenguaje.getString("repetir"));
         
-        itemPlay_Pause.setText(lenguaje.getProperty("reproducir_pausa"));
-        itemStop.setText(lenguaje.getProperty("detener"));
-        itemBack.setText(lenguaje.getProperty("anterior"));
-        itemNext.setText(lenguaje.getProperty("siguiente"));
-        itemAleatorio.setText(lenguaje.getProperty("aleatorio"));
-        itemRepetir.setText(lenguaje.getProperty("repetir"));
+        itemAbrir.setText(lenguaje.getString("itemAbrirMusica"));
+        itemAbrirLista.setText(lenguaje.getString("itemAbrirLista"));
         
-        itemAbrir.setText(lenguaje.getProperty("itemAbrirMusica"));
-        itemAbrirLista.setText(lenguaje.getProperty("itemAbrirLista"));
+        itemGuardar.setText(lenguaje.getString("guardar"));
+        itemGuardarComo.setText(lenguaje.getString("guardarComo"));
         
-        itemGuardar.setText(lenguaje.getProperty("guardar"));
-        itemGuardarComo.setText(lenguaje.getProperty("guardarComo"));
+        itemES.setText(lenguaje.getString("espa\u00f1ol"));
+        itemEN.setText(lenguaje.getString("ingles"));
         
-        itemES.setText(lenguaje.getProperty("español"));
-        itemEN.setText(lenguaje.getProperty("ingles"));
+        itemAbout.setText(lenguaje.getString("acerca"));
+        itemSalir.setText(lenguaje.getString("salir"));
         
-        itemAbout.setText(lenguaje.getProperty("acerca"));
-        itemSalir.setText(lenguaje.getProperty("salir"));
-        
-        labelTituloLista.setText(lenguaje.getProperty("tituloLista"));
+        labelTituloLista.setText(lenguaje.getString("tituloLista"));
         
         if(estadoIVPlayer == 0 || estadoIVPlayer == 2)
-            botonPlay_Pause.setToolTipText(lenguaje.getProperty("botonReproducir"));
+            botonPlay_Pause.setToolTipText(lenguaje.getString("botonReproducir"));
         if(estadoIVPlayer == 1)
-            botonPlay_Pause.setToolTipText(lenguaje.getProperty("botonPausa"));
+            botonPlay_Pause.setToolTipText(lenguaje.getString("botonPausa"));
         
-        botonStop.setToolTipText(lenguaje.getProperty("botonDetener"));
-        botonBack.setToolTipText(lenguaje.getProperty("botonAnterior"));
-        botonNext.setToolTipText(lenguaje.getProperty("botonSiguiente"));
+        botonStop.setToolTipText(lenguaje.getString("botonDetener"));
+        botonBack.setToolTipText(lenguaje.getString("botonAnterior"));
+        botonNext.setToolTipText(lenguaje.getString("botonSiguiente"));
         
-        if(silencio == true) botonVolume.setToolTipText(lenguaje.getProperty("botonVolumen"));
+        if(silencio == true) botonVolume.setToolTipText(lenguaje.getString("botonVolumen"));
         else
-            botonVolume.setToolTipText(lenguaje.getProperty("botonSilencio"));
+            botonVolume.setToolTipText(lenguaje.getString("botonSilencio"));
         
-        botonAdd.setToolTipText(lenguaje.getProperty("botonAñadir"));
-        checkAleatorio.setText(lenguaje.getProperty("aleatorio"));
-        checkAleatorio.setToolTipText(lenguaje.getProperty("checkAleatorio"));
+        botonAdd.setToolTipText(lenguaje.getString("botonA\u00f1adir"));
+        checkAleatorio.setText(lenguaje.getString("aleatorio"));
+        checkAleatorio.setToolTipText(lenguaje.getString("checkAleatorio"));
     }
     
     private void leerConfig(String id){
@@ -663,9 +669,9 @@ public class Interfaz extends javax.swing.JFrame {
             isRepeat = true;
             itemRepetir.setSelected(true);
         }
-        
-        idioma = config.getProperty("idioma");
-        if(idioma.equals("ES")) itemES.setSelected(true);
+        //idioma = config.getProperty("idioma");
+        if(Locale.getDefault().getLanguage().equals("es"))
+        	itemES.setSelected(true);
         else
             itemEN.setSelected(true);
         
@@ -767,7 +773,7 @@ public class Interfaz extends javax.swing.JFrame {
     public void play(){
         estadoIVPlayer = 1;
         botonPlay_Pause.setIcon(arrayImagen[0]);
-        botonPlay_Pause.setToolTipText(lenguaje.getProperty("botonPausa"));
+        botonPlay_Pause.setToolTipText(lenguaje.getString("botonPausa"));
         itemPlay_Pause.setIcon(arrayImagen[4]);
         //setImageCover(listaTags.get(indexMusic).getImageCover());
         ivPlayer.play();
@@ -777,7 +783,7 @@ public class Interfaz extends javax.swing.JFrame {
         estadoIVPlayer = 2;
         botonPlay_Pause.setIcon(arrayImagen[1]);
         itemPlay_Pause.setIcon(arrayImagen[5]);
-        botonPlay_Pause.setToolTipText(lenguaje.getProperty("botonReproducir"));
+        botonPlay_Pause.setToolTipText(lenguaje.getString("botonReproducir"));
         ivPlayer.pause();
     }
     
@@ -792,7 +798,7 @@ public class Interfaz extends javax.swing.JFrame {
         estadoIVPlayer = 0;
         botonPlay_Pause.setIcon(arrayImagen[1]);
         itemPlay_Pause.setIcon(arrayImagen[5]);
-        botonPlay_Pause.setToolTipText(lenguaje.getProperty("botonReproducir"));
+        botonPlay_Pause.setToolTipText(lenguaje.getString("botonReproducir"));
         hora = minuto = segundo = 0;
         ivPlayer.stop();
         labelTime.setText("00:00");
@@ -1569,6 +1575,7 @@ public class Interfaz extends javax.swing.JFrame {
 
                 }catch(Exception e){
                     System.out.println("Error en look and Feel");
+                    e.printStackTrace();
                 }
 
             }
