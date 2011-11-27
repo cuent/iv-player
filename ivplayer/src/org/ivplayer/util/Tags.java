@@ -72,7 +72,7 @@ public class Tags {
                 
                 titulo = (String) properties.get("title");
                 //Mostrar el titulo  de la cancion en caso de que el tag sea null 
-                if(titulo .equals("                              ")){ 
+                if(titulo==null){ 
                 	titulo = file.getName();
                 	titulo=titulo.replace(".mp3", "");
                 }
