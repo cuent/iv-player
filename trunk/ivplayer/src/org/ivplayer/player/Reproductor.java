@@ -27,6 +27,7 @@ public class Reproductor implements BasicPlayerListener{
     private int anterior = 0;
     private float progressUpdate;
     private final int valorSlider = 1000;
+	private int contadorSegundos =0;
     
     // Constructor
     
@@ -134,12 +135,17 @@ public class Reproductor implements BasicPlayerListener{
     
     @Override
     public void progress(int bytesLectura, long l, byte[] bytes, Map map) {
+	    //Activa el desplazamiento del labeltitulo cada segundo 
+    	if(anterior + ((int) (l / 300000))>contadorSegundos )
+	     {
+	    	 contadorSegundos++;
+	      	 interfaz.desplazarTitulo(); 
+	     }  
          progressUpdate = (float) (bytesLectura * 1.0f / longitudBytes * 1.0f);
          //actualizar sliderProgress
          interfaz.actualizarProgreso((int) (progressUpdate * valorSlider));
          interfaz.actualizarAuxProgreso(anterior + (Integer.parseInt( ""+(l / 1000000) ) ) );
          interfaz.setTiempoCancion(anterior + ((int) (l / 1000000)));
-         
     }
 
     @Override

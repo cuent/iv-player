@@ -143,8 +143,9 @@ public class Interfaz extends javax.swing.JFrame {
     private ResourceBundle lenguaje;
     private PlayerProperties config;
     private String idioma = "ES";
-    
-    HilolabelTitulo hilo;
+
+    //variable para recrear el efecto de movimiento del autor y titulo
+	private String tituloEnMovimiento;
     
     /** Creates new form Interfaz */
     public Interfaz() {
@@ -175,7 +176,7 @@ public class Interfaz extends javax.swing.JFrame {
         botonNext.addActionListener(manejador);
         botonVolume.addActionListener(manejador);
         botonAdd.addActionListener(manejador);
-        //botonAdd.setEnabled(false);
+        botonAdd.setEnabled(false);
         
         // actionListener MenuItem
         itemAbrir.addActionListener(manejador);
@@ -775,53 +776,13 @@ public class Interfaz extends javax.swing.JFrame {
         volumen();
         auxSliderProgress.setMaximum(listaTags.get(index).getDuracion());
         setEtiquetas(listaTags.get(index));
-        hilo.tituloEnMovimiento=new String(artista+" - "+titulo).concat("     ");
-        if((artista+" - "+titulo).length()>40)
-        {
-        	hilo.parar=false;
-        	labelTitulo.setText((artista+" - "+titulo).substring(0,40));
-        }
-        else
-        {
-        	hilo.parar=true;
+        tituloEnMovimiento=new String(artista+" - "+titulo).concat("     ");
+        if((artista+" - "+titulo).length()<40)
         	labelTitulo.setText(artista+" - "+titulo);
-        }
+        else
+        	labelTitulo.setText(tituloEnMovimiento.substring(0, 40));
         setImageCover(listaTags.get(index).getImageCover());
         play();
-    }
-    
-    private class HilolabelTitulo extends Thread
-    {
-    	
-    	private boolean parar;
-    	private String tituloEnMovimiento = "";
-    	public HilolabelTitulo(String tituloCancionActual, boolean b)
-    	{
-    		parar=b;
-    	}
-    	public void run()
-    	{    		
-    		int maximoCaracteresAMostrar=40;
-    		while(true)
-    		{
-    			if(parar)
-    			{
-    				//No se activa el hilo    	    		    		
-    			}
-    			else//se activa el hilo
-    			{
-    				char c=tituloEnMovimiento.charAt(0);
-    				tituloEnMovimiento=tituloEnMovimiento.substring(1,tituloEnMovimiento.length()).concat(""+c);
-	    			labelTitulo.setText(tituloEnMovimiento.substring(0,maximoCaracteresAMostrar));
-	    			try {
-						sleep(200);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-    			}
-    		}
-        } 
     }
     
     private void setEtiquetas(Tags etiquetas){
@@ -904,26 +865,16 @@ public class Interfaz extends javax.swing.JFrame {
     public void reproductorAbrirArchivo(){
         habilitarComponentes(true);
         labelTime.setText("00:00");
+        System.out.println(temp);
         ivPlayer.abrirArchivo(listaFile.get(indexMusic).getAbsolutePath());
         volumen();
         auxSliderProgress.setMaximum(listaTags.get(indexMusic).getDuracion());
         setEtiquetas(listaTags.get(indexMusic));
-        if(hilo==null)
-        {
-        	hilo=new HilolabelTitulo("IVPlayer",true);
-	        hilo.start();
-        }
-        hilo.tituloEnMovimiento=new String(artista+" - "+titulo).concat("     ");
-        if((artista+" - "+titulo).length()>40)
-        {
-        	hilo.parar=false;
-        	labelTitulo.setText((artista+" - "+titulo).substring(0,40));
-        }
-        else
-        {
-        	hilo.parar=true;
+        tituloEnMovimiento=new String(artista+" - "+titulo).concat("     ");
+        if((artista+" - "+titulo).length()<40)
         	labelTitulo.setText(artista+" - "+titulo);
-        }
+        else
+        	labelTitulo.setText(tituloEnMovimiento.substring(0,40));
         setImageCover(listaTags.get(indexMusic).getImageCover());
     }
     
@@ -1318,7 +1269,17 @@ public class Interfaz extends javax.swing.JFrame {
         if(hora > 0)
             labelTime.setText(str_hora + ":" + str_minuto + ":" + str_segundo + " ");
         else
-            labelTime.setText(str_minuto + ":" + str_segundo);
+            labelTime.setText(str_minuto + ":" + str_segundo);      
+    }
+    
+    public void desplazarTitulo()
+    {
+    	 if((artista+" "+titulo).length()>40)
+         {	
+         	char c=tituloEnMovimiento.charAt(0);
+         	tituloEnMovimiento=tituloEnMovimiento.substring(1,tituloEnMovimiento.length()).concat(""+c);
+         	labelTitulo.setText(tituloEnMovimiento.substring(0,40));
+         }  
     }
     
     public void habilitarComponentes(boolean opcion){
