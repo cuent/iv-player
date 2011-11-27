@@ -78,7 +78,8 @@ public class Tags {
                 }
                 autor = (String) properties.get("author");
                 //renicio la variable autor
-                if(autor.equals("                              "))autor="";
+                if(autor==null)
+                	autor="";
                 album = (String) properties.get("album");
                 //year = Integer.parseInt((String) properties.get("date"));
                 
