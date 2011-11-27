@@ -16,6 +16,8 @@ import java.awt.Component;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
@@ -142,6 +144,8 @@ public class Interfaz extends javax.swing.JFrame {
     private PlayerProperties config;
     private String idioma = "ES";
     
+    HilolabelTitulo hilo;
+    
     /** Creates new form Interfaz */
     public Interfaz() {
         initComponents();
@@ -171,7 +175,7 @@ public class Interfaz extends javax.swing.JFrame {
         botonNext.addActionListener(manejador);
         botonVolume.addActionListener(manejador);
         botonAdd.addActionListener(manejador);
-        botonAdd.setEnabled(false);
+        //botonAdd.setEnabled(false);
         
         // actionListener MenuItem
         itemAbrir.addActionListener(manejador);
@@ -191,6 +195,8 @@ public class Interfaz extends javax.swing.JFrame {
         jList.setCellRenderer(renderer);
         EventoMouse eventoMouse= new EventoMouse();
         jList.addMouseListener(eventoMouse);
+        EventoTeclado eventoTeclado=new EventoTeclado();
+        jList.addKeyListener(eventoTeclado);
         
         model = new DefaultListModel();
         
@@ -364,7 +370,7 @@ public class Interfaz extends javax.swing.JFrame {
                      if(e.getClickCount() == 2){
                          int index = jList.locationToIndex(e.getPoint());
                          ListModel dlm = jList.getModel();
-                         Object item = dlm.getElementAt(index);;
+                         Object item = dlm.getElementAt(index);
                          jList.ensureIndexIsVisible(index);
                          indexMusic=index;
                          reproducirDeLaLista(index);
@@ -386,6 +392,50 @@ public class Interfaz extends javax.swing.JFrame {
                          isSeek = true;
                      }
                 }
+    }
+    
+    class EventoTeclado implements KeyListener
+    {
+
+		@Override
+		public void keyPressed(KeyEvent key) {
+			//Remueve los elementos seleccionados de la lista al pulsar la tecla Suprimir
+			//Por cada cancion eliminada se actualizan los Tags,los indices y la lista de ficheros
+			if(key.getExtendedKeyCode()==KeyEvent.VK_DELETE && !listaFile.isEmpty())
+			{
+				int actualizarIndice=0;
+				int elementoSeleccionado=jList.getSelectedIndex();
+				for(int cancionSeleccionada:jList.getSelectedIndices())
+				{
+					//Si se eliminan elementos de la lista que están por 
+					//debajo del indexMusic, la cancion que se esta escuchando
+					//seguirá marcada despues de eliminar esos elementos
+					if(indexMusic>cancionSeleccionada)
+					{
+						indexMusic--;
+						indexAuxMusic--;
+					}//Si se elimina un elemento que esta por encima del indexmusic
+					//seguira marcada la cancion que se este escuchando
+					else
+						jList.ensureIndexIsVisible(elementoSeleccionado);
+					
+					listaFile.remove(cancionSeleccionada+actualizarIndice);
+					listaAuxFile.remove(cancionSeleccionada+actualizarIndice);
+					((DefaultListModel) jList.getModel()).remove(cancionSeleccionada+actualizarIndice);
+					listaTags.remove(cancionSeleccionada+actualizarIndice);
+					actualizarIndice--;					
+				}				
+			}			
+		}
+
+		@Override
+		public void keyReleased(KeyEvent arg0) {
+		}
+
+		@Override
+		public void keyTyped(KeyEvent arg0) {
+		}
+    	
     }
     
     class CellRenderer implements ListCellRenderer {
@@ -725,11 +775,54 @@ public class Interfaz extends javax.swing.JFrame {
         volumen();
         auxSliderProgress.setMaximum(listaTags.get(index).getDuracion());
         setEtiquetas(listaTags.get(index));
-        labelTitulo.setText(titulo);
+        hilo.tituloEnMovimiento=new String(artista+" - "+titulo).concat("     ");
+        if((artista+" - "+titulo).length()>40)
+        {
+        	hilo.parar=false;
+        	labelTitulo.setText((artista+" - "+titulo).substring(0,40));
+        }
+        else
+        {
+        	hilo.parar=true;
+        	labelTitulo.setText(artista+" - "+titulo);
+        }
         setImageCover(listaTags.get(index).getImageCover());
         play();
     }
     
+    private class HilolabelTitulo extends Thread
+    {
+    	
+    	private boolean parar;
+    	private String tituloEnMovimiento = "";
+    	public HilolabelTitulo(String tituloCancionActual, boolean b)
+    	{
+    		parar=b;
+    	}
+    	public void run()
+    	{    		
+    		int maximoCaracteresAMostrar=40;
+    		while(true)
+    		{
+    			if(parar)
+    			{
+    				//No se activa el hilo    	    		    		
+    			}
+    			else//se activa el hilo
+    			{
+    				char c=tituloEnMovimiento.charAt(0);
+    				tituloEnMovimiento=tituloEnMovimiento.substring(1,tituloEnMovimiento.length()).concat(""+c);
+	    			labelTitulo.setText(tituloEnMovimiento.substring(0,maximoCaracteresAMostrar));
+	    			try {
+						sleep(200);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    			}
+    		}
+        } 
+    }
     
     private void setEtiquetas(Tags etiquetas){
 
@@ -815,7 +908,22 @@ public class Interfaz extends javax.swing.JFrame {
         volumen();
         auxSliderProgress.setMaximum(listaTags.get(indexMusic).getDuracion());
         setEtiquetas(listaTags.get(indexMusic));
-        labelTitulo.setText(titulo);
+        if(hilo==null)
+        {
+        	hilo=new HilolabelTitulo("IVPlayer",true);
+	        hilo.start();
+        }
+        hilo.tituloEnMovimiento=new String(artista+" - "+titulo).concat("     ");
+        if((artista+" - "+titulo).length()>40)
+        {
+        	hilo.parar=false;
+        	labelTitulo.setText((artista+" - "+titulo).substring(0,40));
+        }
+        else
+        {
+        	hilo.parar=true;
+        	labelTitulo.setText(artista+" - "+titulo);
+        }
         setImageCover(listaTags.get(indexMusic).getImageCover());
     }
     
@@ -1530,7 +1638,6 @@ public class Interfaz extends javax.swing.JFrame {
             .addComponent(panelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(panelLista, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 // Metodo para actualizar el progreso de la cancion en el slider
