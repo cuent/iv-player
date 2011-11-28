@@ -402,7 +402,7 @@ public class Interfaz extends javax.swing.JFrame {
 		public void keyPressed(KeyEvent key) {
 			//Remueve los elementos seleccionados de la lista al pulsar la tecla Suprimir
 			//Por cada cancion eliminada se actualizan los Tags,los indices y la lista de ficheros
-			if(key.getExtendedKeyCode()==KeyEvent.VK_DELETE && !listaFile.isEmpty())
+			if(key.getKeyCode()==KeyEvent.VK_DELETE && !listaFile.isEmpty())
 			{
 				int actualizarIndice=0;
 				int elementoSeleccionado=jList.getSelectedIndex();
