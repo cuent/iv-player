@@ -50,7 +50,9 @@ public class Reproductor implements BasicPlayerListener{
     
     public void play(){
         try {
-            basicPlayer.play();
+        	//Reiniciamos el contador para cada canción
+        	contadorSegundos=0;
+            basicPlayer.play();            
         } catch (BasicPlayerException ex) {
             Logger.getLogger(Reproductor.class.getName()).log(Level.SEVERE, null, ex);
         }
