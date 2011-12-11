@@ -53,6 +53,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.ivplayer.properties.PlayerProperties;
 import org.ivplayer.util.ExtensionFileFilter;
@@ -1094,13 +1095,13 @@ public class Interfaz extends javax.swing.JFrame {
          fileChooser.setDialogTitle("Selector de archivos");
          
          // se especifica el filtro a usar
-         filtro = new ExtensionFileFilter("ivl", new String[]{"ivl", "IVL"});
-         
+         filtro = new ExtensionFileFilter("Todas las Listas de Reproducción Soportadas (*.ivl, *.m3u)", new String[]{"ivl", "IVL","m3u", "M3U"});
          // se asigna el tipo de filro
          fileChooser.setFileFilter(filtro);
          
          // se abre la ventana fileChooser
          // y se guarda en resultado
+         fileChooser.setLocale(new Locale("es","ES"));
          int resultado = fileChooser.showOpenDialog(this);
          
          // se compara si resultado es igual al valor de la constante APPROVE_OPTION
@@ -1136,20 +1137,31 @@ public class Interfaz extends javax.swing.JFrame {
              
              nombreLista = archivo.getName();
              rutaLista = archivo;
+             String archivosSinRuta=archivo.getAbsolutePath();             
+             archivosSinRuta=archivosSinRuta.replace(archivo.getName(), "");
              // Lectura del fichero
              String ruta;
              File f;
              while((ruta = br.readLine()) != null){
-                 f = new File(ruta);
-                 listaFile.add(f);
-                 listaAuxFile.add(f);
-                 
-                 etiquetas = new Tags();
-                 etiquetas.getTags(f.getAbsolutePath());
-                 listaTags.add(etiquetas);
-                 setEtiquetas(etiquetas);
-                 model.addElement(artista + " - " + titulo);
-                 System.out.println(ruta);
+            	 f = new File(ruta);
+                 if(ruta.equals(f.getName()))
+                 {//Para abrir archivos .m3u que NO lleven la ruta del archivo dentro
+                	 ruta=archivosSinRuta+ruta;
+                	 f = new File(ruta);
+                 }
+                 //si algun archivo de la lista no existe no lo añade
+            	 if(f.exists())
+                 {
+            		 listaFile.add(f);
+	                 listaAuxFile.add(f);
+	                 
+	                 etiquetas = new Tags();
+	                 etiquetas.getTags(f.getAbsolutePath());
+	                 listaTags.add(etiquetas);
+	                 setEtiquetas(etiquetas);
+	                 model.addElement(artista + " - " + titulo);
+	                 System.out.println(ruta);
+                 }
              }
              if(model.size() > 0){
                  jList.setSelectedIndex(indexMusic);
